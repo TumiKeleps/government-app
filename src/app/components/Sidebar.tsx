@@ -196,7 +196,7 @@ export default function Sidebar() {
                 {open && open2 && (
                   <List sx={{ "--ListItem-paddingY": "8px", pl: 4 }}>
                     <ListItem>
-                      <ListItemButton>
+                      <ListItemButton component="a" href="/createKPI">
                         <ListItemDecorator>
                           <CreateIcon />
                         </ListItemDecorator>
@@ -204,7 +204,7 @@ export default function Sidebar() {
                       </ListItemButton>
                     </ListItem>
                     <ListItem>
-                      <ListItemButton component="a" href="/updateKPI">
+                      <ListItemButton component="a" href="/dashboard/rawData">
                         <ListItemDecorator>
                           <UpdateIcon />
                         </ListItemDecorator>

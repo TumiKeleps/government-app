@@ -1,3 +1,4 @@
+// src/components/CreateKPI.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -7,9 +8,10 @@ import {
   TextField,
   Typography,
   MenuItem,
-  Snackbar,
-  Alert,
 } from '@mui/material';
+
+// Import useSnackbar from your Snackbar context
+import { useSnackbar } from "../context/SnackBar";
 
 const sectors = [
   'Economic Infrastructure',
@@ -32,17 +34,12 @@ const CreateKPI: React.FC = () => {
   const [indicator, setIndicator] = useState('');
   const [baseline, setBaseline] = useState('');
   const [targetYear, setTargetYear] = useState('');
-  const [successToast, setSuccessToast] = useState(false);
-  const [errorToast, setErrorToast] = useState(false);
+
+  // Use the showMessage function from your Snackbar context
+  const { showMessage } = useSnackbar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
-    if (!sector || !indicator || !baseline || !targetYear) {
-      alert('Please fill in all required fields.');
-      return;
-    }
 
     // Prepare the data to be sent to the backend
     const kpiData = {
@@ -58,14 +55,14 @@ const CreateKPI: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'opt-key-dev-2024',  // Add the API key here
+          'x-api-key': 'opt-key-dev-2024', // Add the API key here
         },
         body: JSON.stringify(kpiData),
       });
 
       if (response.ok) {
-        // If the request is successful, show the success toast
-        setSuccessToast(true);
+        // Use showMessage for success
+        showMessage('KPI created successfully!', 'success');
 
         // Reset the form fields
         setSector('');
@@ -78,17 +75,13 @@ const CreateKPI: React.FC = () => {
       }
     } catch (error) {
       console.error('Error creating KPI:', error);
-      setErrorToast(true);
+      // Use showMessage for errors
+      showMessage('Failed to create KPI. Please try again.', 'error');
     }
   };
 
-  const handleCloseToast = () => {
-    setSuccessToast(false);
-    setErrorToast(false);
-  };
-
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+    <Box sx={{ maxWidth: 600, mx: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom>
         Create KPI
       </Typography>
@@ -149,30 +142,6 @@ const CreateKPI: React.FC = () => {
           Submit
         </Button>
       </form>
-
-      {/* Success Toast */}
-      <Snackbar
-        open={successToast}
-        autoHideDuration={6000}
-        onClose={handleCloseToast}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseToast} severity="success" sx={{ width: '100%' }}>
-          KPI created successfully!
-        </Alert>
-      </Snackbar>
-
-      {/* Error Toast */}
-      <Snackbar
-        open={errorToast}
-        autoHideDuration={6000}
-        onClose={handleCloseToast}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseToast} severity="error" sx={{ width: '100%' }}>
-          Failed to create KPI. Please try again.
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };
