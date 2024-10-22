@@ -4,6 +4,7 @@ import * as React from "react";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Breadcrumbs from "./breadcrumbs";
 import {
   List,
   ListItem,
@@ -25,10 +26,8 @@ import { Dashboard, KeyboardArrowDown } from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
-  Breadcrumbs,
   CssBaseline,
   IconButton,
-  Link,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -89,19 +88,7 @@ export default function Sidebar() {
             </IconButton>
           )}
 
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link underline="hover" color="inherit" href="/">
-              MUI
-            </Link>
-            <Link
-              underline="hover"
-              color="inherit"
-              href="/material-ui/getting-started/installation/"
-            >
-              Core
-            </Link>
-            <Typography sx={{ color: "text.primary" }}>Breadcrumbs</Typography>
-          </Breadcrumbs>
+          <Breadcrumbs/>
           <Typography
             variant="h6"
             noWrap
@@ -189,7 +176,7 @@ export default function Sidebar() {
                   {/* Left section: Icon and KPI text */}
 
                   <ListItemDecorator >
-                    <AnalyticsIcon style= {{fontSize: "1.5rem"}} />
+                    <AnalyticsIcon style= {{fontSize: "1.60rem"}} />
                   </ListItemDecorator>
                   {open && <ListItemContent>KPI</ListItemContent>}
 
