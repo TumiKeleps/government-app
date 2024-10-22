@@ -1,0 +1,19 @@
+.no-hover-fill {
+    background-color: transparent !important;
+    color: #eb7b2a !important;
+    border: 2px solid #eb7b2a !important;
+    box-shadow: none  !important;
+  }
+  
+.no-hover-fill:hover {
+    background-color: #eb7b2a !important;
+    color: #000000 !important;
+    border-color: #eb7b2a !important;
+    box-shadow: none  !important;
+  }
+
+ .bodyColor {
+ background-color: #283028!important; 
+   minHeight: "100vh";
+  }
+  
