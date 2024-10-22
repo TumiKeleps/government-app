@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Breadcrumbs as MUIBreadcrumbs, Typography, Chip } from '@mui/material';
+import { Breadcrumbs as MUIBreadcrumbs, Typography } from '@mui/material';
 
 const Breadcrumbs: React.FC = () => {
   const pathname = usePathname();
