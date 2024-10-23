@@ -39,6 +39,8 @@ export default function Sidebar() {
 
   const { logout, user } = useAuth();
 
+  
+
   return (
     <Box sx={{ display: "flex", position: "relative", height: "100vh" }}>
       <CssBaseline />
@@ -208,7 +210,7 @@ export default function Sidebar() {
                         <ListItemDecorator>
                           <UpdateIcon />
                         </ListItemDecorator>
-                        Update KPI
+                       Raw Data
                       </ListItemButton>
                     </ListItem>
                   </List>

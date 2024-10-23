@@ -38,7 +38,7 @@ const Quarter=[
 
 ]
 
-import { useSnackbar } from "../context/SnackBar";
+import { useSnackbar } from "../../context/SnackBar";
 // The `createKPI` method to handle KPI creation logic
 export default function updateKPI() {
   const { showMessage } = useSnackbar();
