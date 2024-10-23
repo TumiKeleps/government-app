@@ -148,7 +148,7 @@ export default function Sidebar() {
               <ListItem>
                 <ListItemButton
                   component="a"
-                  href="/dashboard"
+                  href="/dashboard/sector"
                   sx={{
                     justifyContent: open ? "flex-start" : "center",
                     alignItems: "center",
