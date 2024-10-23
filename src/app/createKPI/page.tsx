@@ -33,7 +33,8 @@ const CreateKPI: React.FC = () => {
   const { showMessage } = useSnackbar();
 
   // State for sectors
-  const [sectors, setSectors] = useState<{ value: string; label: string }[]>([]);
+  const [sectors, setSectors] =  useState<string[]>([]);
+
 
   // Fetch sectors from backend when component mounts
   useEffect(() => {
@@ -47,19 +48,14 @@ const CreateKPI: React.FC = () => {
           },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          // Extract sectorEnum values and create labels using toTitleCase
-          const sectorsWithLabels = data.map((item: { sectorEnum: string }) => ({
-            value: item.sectorEnum,
-            label: toTitleCase(item.sectorEnum),
-          }));
-          setSectors(sectorsWithLabels);
-        } else {
-          console.error('Failed to fetch sectors');
+        if (!response.ok) {
+          throw new Error(`Error fetching sectors enum: ${response.statusText}`);
         }
+
+        const enumValues = await response.json();
+        setSectors(enumValues); // Directly use the array of enum values
       } catch (error) {
-        console.error('Error fetching sectors:', error);
+        console.error("Error fetching sectors enum:", error);
       }
     };
 
@@ -127,8 +123,8 @@ const CreateKPI: React.FC = () => {
           sx={{ mb: 2 }}
         >
           {sectors.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
+            <MenuItem key={option} value={option}>
+              {option}
             </MenuItem>
           ))}
         </TextField>
