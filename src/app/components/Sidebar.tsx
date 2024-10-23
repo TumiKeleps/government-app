@@ -33,9 +33,9 @@ import {
 } from "@mui/material";
 
 export default function Sidebar() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 
-  const [open2, setOpen2] = React.useState(false);
+  const [open2, setOpen2] = React.useState(true);
 
   const { logout, user } = useAuth();
 
@@ -101,7 +101,6 @@ export default function Sidebar() {
           <IconButton sx={{ ml: 2 }}>
             <Avatar
               alt={`${user?.name} ${user?.surname}`}
-              src={"/default-avatar.png"}
             />
           </IconButton>
           <Typography variant="body1" noWrap>
@@ -165,56 +164,22 @@ export default function Sidebar() {
                 </ListItemButton>
               </ListItem>
 
-              <ListItem nested  sx={{ my: 1 }}>
+              <ListItem>
                 <ListItemButton
-                  onClick={() => setOpen2((prev) => !prev)} // Toggle submenu on click
+                  component="a"
+                  href="/createKPI"
                   sx={{
                     justifyContent: open ? "flex-start" : "center",
                     alignItems: "center",
                     minHeight: 50,
-                    px: open ? 2 : 3.5, // Reduce padding when closed
+                    px: open ? 2 : 0, // Reduce padding when closed
                   }}
                 >
-                  {/* Left section: Icon and KPI text */}
-
-                  <ListItemDecorator >
-                    <AnalyticsIcon style= {{fontSize: "1.60rem"}} />
+                  <ListItemDecorator>
+                    <CreateIcon style={{ fontSize: "1.5rem" }} />
                   </ListItemDecorator>
-                  {open && <ListItemContent>KPI</ListItemContent>}
-
-                  {/* Right section: Arrow icon */}
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <KeyboardArrowDown
-                      sx={[
-                        open2
-                          ? { transform: "initial" }
-                          : { transform: "rotate(-90deg)" },
-                      ]}
-                    />
-                  </Box>
+                  {open && <ListItemContent>Create KPI</ListItemContent>}
                 </ListItemButton>
-
-                {/* Submenu: Create KPI and Update KPI */}
-                {open && open2 && (
-                  <List sx={{ "--ListItem-paddingY": "8px", pl: 4 }}>
-                    <ListItem>
-                      <ListItemButton component="a" href="/createKPI">
-                        <ListItemDecorator>
-                          <CreateIcon />
-                        </ListItemDecorator>
-                        Create KPI
-                      </ListItemButton>
-                    </ListItem>
-                    <ListItem>
-                      <ListItemButton component="a" href="/dashboard/rawData">
-                        <ListItemDecorator>
-                          <UpdateIcon />
-                        </ListItemDecorator>
-                       Raw Data
-                      </ListItemButton>
-                    </ListItem>
-                  </List>
-                )}
               </ListItem>
             </List>
 
