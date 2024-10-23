@@ -21,6 +21,7 @@ interface Data {
   sector: string;
   baseline: string;
   target: string;
+  province: string;
   actualPerfomances: Performance[];
 }
 
@@ -173,7 +174,7 @@ export default function KPIDataTable() {
                       {toTitleCase(row.sector)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'black', mb: 1 }}>
-                      {toTitleCase(province)}  {/* Province from first performance */}
+                      {toTitleCase(row.province)}  {/* Province from first performance */}
                     </Typography>
                   </Grid>
 
