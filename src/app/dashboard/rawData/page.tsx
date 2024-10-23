@@ -36,8 +36,7 @@ const getStatusColor = (progressRatingEnum: string) => {
     case 'BLUE':
       return '#cfe2ff'; // Light blue
     case 'NONE':
-    default:
-      return '#d1e7fd'; // Default light blue for 'NONE' or other unknown states
+      return '#d3d3d3'; // Default light blue for 'NONE' or other unknown states
   }
 };
 
@@ -146,7 +145,7 @@ export default function KPIDataTable() {
           };
 
           // Get the province from the first performance (assuming province is the same for all quarters)
-          const province = row.actualPerfomances.length > 0 ? row.actualPerfomances[0].province : 'N/A';
+          const province = row.actualPerfomances.length > 0 ? row.actualPerfomances[0].province : 'Currently, there is no progress report available for this quarter.';
 
           return (
             <Card
@@ -202,7 +201,7 @@ export default function KPIDataTable() {
                             key={quarter}
                             sx={{
                               flexGrow: 1,
-                              backgroundColor: perf ? getStatusColor(perf.progressRatingEnum) : '#d1e7fd',
+                              backgroundColor: perf ? getStatusColor(perf.progressRatingEnum) : '#d3d3d3',
                               p: 2,
                               borderRadius: 2,
                               width: '22%',
@@ -214,7 +213,7 @@ export default function KPIDataTable() {
                               {quarter}
                             </Typography>
                             {/* Display progressReport */}
-                            <Typography variant="body2">{perf ? perf.progressReport : 'N/A'}</Typography>
+                            <Typography variant="body2">{perf ? perf.progressReport : 'Currently, there is no progress report available for this quarter.'}</Typography>
                           </Box>
                         );
                       })}
