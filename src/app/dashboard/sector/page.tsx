@@ -78,6 +78,7 @@ interface ActualPerformance {
 interface SectorData {
   id: number;
   sector: string;
+  province:string;
   indicator: string;
   baseline: string;
   target: string;
@@ -228,16 +229,18 @@ export default function DashboardPage() {
 
         // Flatten the data to extract actualPerformances and sort by creationDate
         const flattenedData = result.flatMap((item: SectorData) =>
-          item.actualPerfomances.map((performance: ActualPerformance) =>
-            createData(
-              toTitleCase(item.sector), // Apply title case to sector
-              toTitleCase(performance.province), // Apply title case to province
-              performance.progressReport,
-              performance.progressRatingEnum,
-              performance.briefExplanation,
-              performance.creationDate
-            )
-          )
+          item.actualPerfomances.length > 0 // Check if there are actual performances
+            ? item.actualPerfomances.map((performance: ActualPerformance) =>
+                createData(
+                  toTitleCase(item.sector),
+                  toTitleCase(item.province),
+                  performance.progressReport,
+                  performance.progressRatingEnum,
+                  performance.briefExplanation,
+                  performance.creationDate
+                )
+              )
+            : []
         );
 
         // Sort data by creationDate and limit to the 10 most recent

@@ -102,7 +102,7 @@ export default function ProvinceDashboard() {
   const [recentUpdates, setRecentUpdates] = useState<FlattenedData[]>([]); // Recent updates state
   const router = useRouter(); // Initialize router for client-side navigation
   const searchParams = useSearchParams();
-  const selectedSector = searchParams.get('sector'); // Get sector from query params
+  const selectedSector = searchParams.get('sector') || 'Unknown'; // Get sector from query params
   const orangeBackgroundColor = '#a4bdab';
   const [loading, setLoading] = useState(true); 
 
@@ -216,7 +216,7 @@ export default function ProvinceDashboard() {
         // Flatten the content array to create table data
         const flattenedData = content.map((performance: ActualPerformance) =>
           createData(
-            toTitleCase(performance.province), // Convert province to title case
+            toTitleCase(selectedSector), // Convert province to title case
             performance.progressReport, // Progress report from the API response
             performance.progressRatingEnum, // Progress rating enum from the response
             performance.briefExplanation, // Brief explanation from the API response
