@@ -182,7 +182,7 @@ export default function updateKPI() {
      
 
       showMessage("KPI Successfully updated!", "success", 5000);
-      router.push("/dashboard/raw-data"); // Redirect after success
+      router.back(); // Redirect after success
     } catch (error) {
       console.error("Error updating actual performance:", error);
       showMessage("Error updating KPI!", "error", 5000);

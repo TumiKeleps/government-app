@@ -13,8 +13,7 @@ import {
   ListItemButton,
 } from "@mui/joy";
 import Sheet from "@mui/joy/Sheet";
-import UpdateIcon from "@mui/icons-material/Update";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
+
 import CreateIcon from "@mui/icons-material/Create";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useAuth } from "../context/AuthContext";
@@ -22,7 +21,6 @@ import Image from "next/image";
 import Logo from "../images/DPME-Logo-1024x349.jpg";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { CssVarsProvider } from "@mui/joy/styles";
-import { Dashboard, KeyboardArrowDown } from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
@@ -31,11 +29,10 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import { Dashboard } from "@mui/icons-material";
 
 export default function Sidebar() {
   const [open, setOpen] = React.useState(true);
-
-  const [open2, setOpen2] = React.useState(true);
 
   const { logout, user } = useAuth();
 
