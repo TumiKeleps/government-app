@@ -14,6 +14,7 @@ import React, {
 import { useSnackbar } from "./SnackBar";
 
 interface User {
+  id: string;
   name: string;
   surname: string;
   email: string;
@@ -68,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
 
       const userData: User = {
+        id: data.id,
         name: data.name,
         surname: data.surname,
         email: data.email,
