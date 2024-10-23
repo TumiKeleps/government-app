@@ -124,7 +124,7 @@ const CreateKPI: React.FC = () => {
         >
           {sectors.map((option) => (
             <MenuItem key={option} value={option}>
-              {option}
+              {toTitleCase(option)}
             </MenuItem>
           ))}
         </TextField>
