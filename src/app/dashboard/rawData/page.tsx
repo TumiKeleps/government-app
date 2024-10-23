@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Button, Typography, Card, CardContent, Grid, Paper, TextField, Modal, Pagination } from '@mui/material';
 import { useSearchParams, useRouter } from 'next/navigation';
+
 // Define the data interface to match the API response
 interface Performance {
   quarterEnum: string;
@@ -15,7 +16,7 @@ interface Performance {
 }
 
 interface Data {
-  id:number;
+  id: number;
   indicator: string;
   creationDate: string;
   sector: string;
@@ -37,7 +38,7 @@ const getStatusColor = (progressRatingEnum: string) => {
     case 'BLUE':
       return '#cfe2ff'; // Light blue
     case 'NONE':
-      return '#d3d3d3'; // Default light blue for 'NONE' or other unknown states
+      return '#d3d3d3'; // Default for 'NONE' or unknown states
   }
 };
 
@@ -53,13 +54,14 @@ const toTitleCase = (str: string) => {
 
 export default function KPIDataTable() {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [open, setOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<Data | null>(null);
+  const [selectedQuarter, setSelectedQuarter] = useState<Performance | null>(null); // State for selected quarter
+  const [openQuarterModal, setOpenQuarterModal] = useState(false); // Modal for quarters
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Data[]>([]); // State for holding fetched data
-  const rowsPerPage = 2; // Number of cards per page
-    
-    const searchParams = useSearchParams();
+  const [filteredRows, setFilteredRows] = useState<Data[]>([]); // State for filtered data
+  const rowsPerPage = 5; // Number of cards per page
+
+  const searchParams = useSearchParams();
   const selectedSector = searchParams.get('sector'); // Get sector from query params
   const selectedProvince = searchParams.get('province'); // Get sector from query params
   const router = useRouter();
@@ -82,31 +84,42 @@ export default function KPIDataTable() {
         });
         const data = await response.json();
         setRows(data.content); // Set the fetched data
+        setFilteredRows(data.content); // Set the filtered data initially to all rows
       } catch (error) {
         console.error('Error fetching KPI data:', error);
       }
     };
 
     fetchData();
-  }, [page]); // Re-fetch data when the page changes
+  }, [page, selectedSector, selectedProvince]); // Re-fetch data when the page, sector, or province changes
 
-  const paginatedRows = rows.slice(0, rowsPerPage); // Keep rowsPerPage as pagination logic is now server-side
+  // Filter rows based on search query
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = rows.filter((row) =>
+        row.indicator.toLowerCase().includes(searchQuery.toLowerCase()) // Filter based on the indicator
+      );
+      setFilteredRows(filtered);
+    } else {
+      setFilteredRows(rows); // Reset to all rows if no search query
+    }
+  }, [searchQuery, rows]);
 
-  const handleOpenModal = (row: Data) => {
-    setSelectedRow(row);
-    setOpen(true);
+  const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+
+  const handleQuarterClick = (quarter: Performance | undefined) => {
+    if (quarter) {
+      setSelectedQuarter(quarter);
+    } else {
+      // If there's no data for the quarter, set selectedQuarter as null to show the "no data available" message
+      setSelectedQuarter(null);
+    }
+    setOpenQuarterModal(true); // Open the modal for the selected quarter
   };
 
-  const handleUpdateClick = (id: number) => {
-   
-    console.log('Update Button Clicked for ID:', id);
-    router.push(`/updateKPI/${id}`);
-    // Proceed to update the row with the given ID
-  };
-
-  const handleCloseModal = () => {
-    setOpen(false);
-    setSelectedRow(null);
+  const handleCloseQuarterModal = () => {
+    setOpenQuarterModal(false);
+    setSelectedQuarter(null);
   };
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -200,6 +213,7 @@ export default function KPIDataTable() {
                         return (
                           <Box
                             key={quarter}
+                            onClick={() => handleQuarterClick(perf)} // Click event to open quarter modal
                             sx={{
                               flexGrow: 1,
                               backgroundColor: perf ? getStatusColor(perf.progressRatingEnum) : '#d3d3d3',
@@ -208,6 +222,7 @@ export default function KPIDataTable() {
                               width: '22%',
                               textAlign: 'center',
                               whiteSpace: 'normal',
+                              cursor: 'pointer', // Indicate clickable
                             }}
                           >
                             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
@@ -222,14 +237,12 @@ export default function KPIDataTable() {
                   </Grid>
 
                   {/* Action Buttons */}
-                  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                    <Button variant="outlined" onClick={() => handleOpenModal(row)}>
-                      View More Info
-                    </Button>
-                    <Button variant="contained" color="primary" onClick={() => handleUpdateClick(row.id)}>
+                  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button variant="contained" color="primary" onClick={() => router.push(`/updateKPI/${row.id}`)}>
                       Update KPI
                     </Button>
                   </Grid>
+
                 </Grid>
               </CardContent>
             </Card>
@@ -238,15 +251,15 @@ export default function KPIDataTable() {
 
         {/* Pagination */}
         <Pagination
-          count={Math.ceil(rows.length / rowsPerPage)}
+          count={Math.ceil(filteredRows.length / rowsPerPage)} // Use filtered rows for pagination count
           page={page}
           onChange={handlePageChange}
           sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}
         />
       </Paper>
 
-      {/* Modal Popup */}
-      <Modal open={open} onClose={handleCloseModal}>
+      {/* Quarter Modal Popup */}
+      <Modal open={openQuarterModal} onClose={handleCloseQuarterModal}>
         <Box
           sx={{
             position: 'absolute',
@@ -260,107 +273,67 @@ export default function KPIDataTable() {
             p: 4,
           }}
         >
-          {selectedRow && (
+          {selectedQuarter ? (
             <>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  fontWeight: 'bold',
-                  textAlign: 'center' // Center the indicator text
-                }}
-              >
-                {selectedRow.indicator} Details
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
+                {toTitleCase(selectedQuarter.quarterEnum)} Details
               </Typography>
 
-              {/* Big card for Sector */}
-              <Card sx={{ mb: 4, boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}>
-                <CardContent>
-                  <Typography variant="body2">
-                    <strong>Sector: </strong>{selectedRow.sector}
-                  </Typography>
-                </CardContent>
-              </Card>
-
-              {/* Grid layout for smaller cards in two columns */}
+              {/* Grid layout with labels and data */}
               <Grid container spacing={2}>
-
-                {/* Baseline Card */}
-                <Grid item xs={12} sm={6}>
-                  <Card sx={{ mb: 2, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
-                    <CardContent>
-                      <Typography variant="body2">
-                        <strong>Baseline:</strong> {selectedRow.baseline}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                {/* Progress */}
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Progress:
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedQuarter.progressReport || 'No progress report available'}
+                  </Typography>
                 </Grid>
 
-                {/* Target Card */}
-                <Grid item xs={12} sm={6}>
-                  <Card sx={{ mb: 2, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
-                    <CardContent>
-                      <Typography variant="body2">
-                        <strong>Target:</strong> {selectedRow.target}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                {/* Data Source */}
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Data Source:
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedQuarter.dataSource || 'No data source available'}
+                  </Typography>
                 </Grid>
 
-                {/* Data Source Card */}
-                <Grid item xs={12} sm={6}>
-                  <Card sx={{ mb: 2, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
-                    <CardContent>
-                      <Typography variant="body2">
-                        <strong>Data Source:</strong> {selectedRow.actualPerfomances[0]?.dataSource || 'No data source available'}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                {/* Comment on Quality */}
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Comment on Quality:
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedQuarter.commentOnQuality || 'No comment available'}
+                  </Typography>
                 </Grid>
 
-                {/* Comment on Quality Card */}
-                <Grid item xs={12} sm={6}>
-                  <Card sx={{ mb: 2, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
-                    <CardContent>
-                      <Typography variant="body2">
-                        <strong>Comment on Quality:</strong> {selectedRow.actualPerfomances[0]?.commentOnQuality || 'No comment available'}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                {/* Brief Explanation Card */}
-                <Grid item xs={12} sm={6}>
-                  <Card sx={{ mb: 2, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
-                    <CardContent>
-                      <Typography variant="body2">
-                        <strong>Explanation:</strong> {selectedRow.actualPerfomances[0]?.briefExplanation || 'No explanation available'}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                {/* Progress Report Card */}
-                <Grid item xs={12} sm={6}>
-                  <Card sx={{ mb: 2, boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)' }}>
-                    <CardContent>
-                      <Typography variant="body2">
-                        <strong>Progress Report:</strong> {selectedRow.actualPerfomances[0]?.progressReport || 'No progress report available'}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                {/* Brief Explanation */}
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Brief Explanation:
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedQuarter.briefExplanation || 'No explanation available'}
+                  </Typography>
                 </Grid>
               </Grid>
-
-              {/* Close Button */}
-              <Button onClick={handleCloseModal} variant="contained" sx={{ mt: 2 }}>
-                Close
-              </Button>
             </>
+          ) : (
+            <Typography variant="body2" sx={{ textAlign: 'center', color: 'red' }}>
+              Currently, there is no data available for this quarter.
+            </Typography>
           )}
+
+          {/* Close Button */}
+          <Button onClick={handleCloseQuarterModal} variant="contained" sx={{ mt: 2 }}>
+            Close
+          </Button>
         </Box>
       </Modal>
-
 
     </Box>
   );
