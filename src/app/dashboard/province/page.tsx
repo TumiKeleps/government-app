@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -104,6 +104,7 @@ export default function ProvinceDashboard() {
   const searchParams = useSearchParams();
   const selectedSector = searchParams.get('sector'); // Get sector from query params
   const orangeBackgroundColor = '#a4bdab';
+  const [loading, setLoading] = useState(true); 
 
   // Function to navigate to the province page
   const handleButtonClick = (sector: string, province: string) => {
@@ -112,6 +113,7 @@ export default function ProvinceDashboard() {
 
   // Function to fetch province data for the selected sector and quarter
   async function fetchProvinceData(province: string, quarter: string) {
+    setLoading(true);
     try {
       const response = await fetch('http://192.168.8.6:8034/api/perfomance-indicators/most-frequent-progress-province', {
         method: 'POST',
@@ -137,12 +139,17 @@ export default function ProvinceDashboard() {
       console.error('Error fetching province data:', error);
       return 0;
     }
+    finally {
+      setLoading(false); // Set loading to false when the fetch is complete
+    }
   }
 
   // Fetch data for all provinces when the sector is selected
   useEffect(() => {
     if (selectedSector) {
+      setLoading(true);
       const fetchAllProvincesData = async () => {
+        try{
         const provinces = [
           'EASTERN_CAPE',
           'FREE_STATE',
@@ -167,6 +174,12 @@ export default function ProvinceDashboard() {
         }
 
         setProvinceData(formattedData);
+      }
+      catch (error) {
+        console.error('Error fetching graph data:', error);
+      } finally {
+        setLoading(false);
+      }
       };
 
       fetchAllProvincesData();
@@ -175,6 +188,7 @@ export default function ProvinceDashboard() {
 
   // Fetch data for recent updates table based on the selected sector
   useEffect(() => {
+    setLoading(true);
     async function fetchRecentUpdates() {
       try {
         const response = await fetch('http://192.168.8.6:8034/api/perfomance-indicators/actual-performance', {
@@ -221,6 +235,9 @@ export default function ProvinceDashboard() {
       } catch (error) {
         console.error('Error fetching recent updates:', error);
       }
+      finally {
+        setLoading(false);
+      }
     }
   
     if (selectedSector) {
@@ -228,9 +245,15 @@ export default function ProvinceDashboard() {
     }
   }, [selectedSector]);
   
+  // Show loading spinner while data is being fetched
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <CircularProgress size={80}/>
+      </Box>
+    );
+  }
   
-  
-
   return (
     <div>
       {/* Graph Section */}
@@ -317,35 +340,87 @@ export default function ProvinceDashboard() {
       </Box>
 
       {/* Recent Updates Table */}
-      <Box sx={{ flexGrow: 1, padding: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Most Recent Updates
-        </Typography>
-        <TableContainer>
-          <Table sx={{ minWidth: 650 }} aria-label="recent updates table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Province</TableCell>
-                <TableCell>Progress Report</TableCell>
-                <TableCell>Progress Rating</TableCell>
-                <TableCell>Brief Explanation</TableCell>
-                <TableCell>Creation Date</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {recentUpdates.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{row.province}</TableCell>
-                  <TableCell>{row.progressReport}</TableCell>
-                  <TableCell>{row.progressRating}</TableCell>
-                  <TableCell>{row.briefExplanation}</TableCell>
-                  <TableCell>{new Date(row.creationDate).toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+      <Box
+  sx={{
+    flexGrow: 1,
+    padding: 3,
+    border: '1px solid',
+    borderColor: 'white',
+    backgroundColor: 'white',
+    borderRadius: '8px', // Rounded corners
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Soft shadow for card effect
+    overflow: 'hidden',
+  }}
+>
+  <Typography
+    variant="h6"
+    gutterBottom
+    sx={{
+      fontSize: '1.25rem',
+      fontWeight: '600',
+      textAlign: 'left',
+      paddingX: '16px',
+      paddingY: '10px',
+      borderBottom: '1px solid',
+      borderColor: 'stroke',
+      backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    }}
+  >
+    Most Recent Updates
+  </Typography>
+  <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
+    <Table sx={{ minWidth: 650 }} aria-label="recent updates table">
+      <TableHead>
+        <TableRow
+          sx={{
+            backgroundColor: 'gray.100', // Light background for header
+            '& th': {
+              fontWeight: 'bold',
+              textAlign: 'center', // Center text in header
+            },
+          }}
+        >
+          <TableCell>Province</TableCell>
+          <TableCell>Progress Report</TableCell>
+          <TableCell>Progress Rating</TableCell>
+          <TableCell>Brief Explanation</TableCell>
+          <TableCell>Creation Date</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {recentUpdates.map((row, index) => (
+          <TableRow
+            key={index}
+            sx={{
+              '&:nth-of-type(odd)': {
+                backgroundColor: 'rgba(0, 0, 0, 0.03)', // Alternating row color
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.1)', // Hover effect
+              },
+            }}
+          >
+            <TableCell sx={{ textAlign: 'center' }}>
+              {row.province}
+            </TableCell>
+            <TableCell sx={{ textAlign: 'center' }}>
+              {row.progressReport}
+            </TableCell>
+            <TableCell sx={{ textAlign: 'center' }}>
+              {row.progressRating}
+            </TableCell>
+            <TableCell sx={{ textAlign: 'center' }}>
+              {row.briefExplanation}
+            </TableCell>
+            <TableCell sx={{ textAlign: 'center' }}>
+              {new Date(row.creationDate).toLocaleString()}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+</Box>
     </div>
   );
 }
