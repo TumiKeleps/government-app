@@ -42,7 +42,7 @@ export default function Login() {
     try {
       await login(username, password);
       showMessage("Login successful!", "success", 5000);
-      router.push("/dashboard");
+      router.push("/dashboard/sector");
     } catch (error) {
       showMessage(
         "Failed to login. Please check your credentials.",

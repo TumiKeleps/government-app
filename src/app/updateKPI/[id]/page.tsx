@@ -16,6 +16,16 @@ const progressColors: { [key: string]: string } = {
 };
 
 interface ActualPerformance {
+  captureId: string;
+  progressRatingEnum: string;
+  province: string;
+  quarterEnum: string;
+  id: number;
+  dataSource: string;
+  commentOnQuality: string;
+  perfomance: string;
+  briefExplanation: string;
+  progressReport: string;
 }
 
 interface Data {
@@ -24,6 +34,7 @@ interface Data {
   sector: string;
   target: string;
   id: number;
+  province: string;
   actualPerformances?: ActualPerformance[];
 }
 interface Params {
@@ -40,7 +51,16 @@ export default function updateKPI() {
   const [loading, setLoading] = useState<boolean>(true);
   const [progressEnum, setProgressEnum] = useState<string[]>([]);
   const [quarterEnum, setQuarterEnum] = useState<string[]>([]);
-  
+  const [actualPerformances, setActualPerformance] = useState<Partial<ActualPerformance>>({
+    captureId: "",
+    progressRatingEnum: "",
+    quarterEnum: "",
+    dataSource: "",
+    commentOnQuality: "",
+    perfomance: "",
+    briefExplanation: "",
+    progressReport: "",
+  });
 
 
   useEffect(() => {
@@ -123,19 +143,58 @@ export default function updateKPI() {
     };
 
     fetchquarterEnum();
+
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user && user.id) {
+      setActualPerformance((prevState) => ({
+        ...prevState,
+        captureId: user.id,  
+      }));
+    }
   }, [id]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setActualPerformance({
+      ...actualPerformances,
+      [name]: value,
+    });
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    showMessage("KPI Successfully updated!", "success", 5000);
+    try {
+      const response = await fetch(`http://192.168.8.6:8034/api/perfomance-indicators/${id}/actual-perfomances`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "opt-key-dev-2024",
+        },
+        body: JSON.stringify(actualPerformances), // Send the request body
+        
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error updating actual performance: ${response.statusText}`);
+      }
+
+     
+
+      showMessage("KPI Successfully updated!", "success", 5000);
+      router.push("/dashboard/raw-data"); // Redirect after success
+    } catch (error) {
+      console.error("Error updating actual performance:", error);
+      showMessage("Error updating KPI!", "error", 5000);
+      console.log(actualPerformances)
+    }
   };
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto" }}>
       <br />
       <Typography variant="h4" gutterBottom>
-        Update KPI
+        Update Performance Indicator
       </Typography>
 
       <Box
@@ -148,13 +207,16 @@ export default function updateKPI() {
         }}
       >
         <Typography variant="h6" gutterBottom>
-          Fetched Data:
+          Current Indicator:
         </Typography>
         <Typography variant="body1">
           <strong>Indicator:</strong> {data?.indicator}
         </Typography>
         <Typography variant="body1">
           <strong>Sector:</strong> {data?.sector}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Province:</strong> {data?.province}
         </Typography>
       </Box>
     
@@ -171,6 +233,9 @@ export default function updateKPI() {
           required
           select
           sx={{ mb: 2 }}
+          name="quarterEnum"
+          onChange={handleInputChange}
+          value={actualPerformances. quarterEnum|| ""}
         >
           {quarterEnum.map((option) => (
             <MenuItem key={option} value={option}>
@@ -186,20 +251,22 @@ export default function updateKPI() {
           fullWidth
           required
           multiline
-          //   value={indicator}
-          //   onChange={(e) => setIndicator(e.target.value)}
+          name="dataSource"
+          onChange={handleInputChange}
+          value={actualPerformances.dataSource || ""}
           sx={{ mb: 2 }}
         />
 
         {/* Baseline Text Input */}
         <TextField
-          label="Comment"
+          label="Comment Quality"
           variant="outlined"
           fullWidth
           required
           multiline
-          //   value={baseline}
-          //   onChange={(e) => setBaseline(e.target.value)}
+          name="commentOnQuality"
+          onChange={handleInputChange}
+          value={actualPerformances.commentOnQuality || ""}
           sx={{ mb: 2 }}
         />
 
@@ -210,8 +277,9 @@ export default function updateKPI() {
           fullWidth
           required
           multiline
-          //   value={baseline}
-          //   onChange={(e) => setBaseline(e.target.value)}
+          name="perfomance"
+          onChange={handleInputChange}
+          value={actualPerformances.perfomance || ""}
           sx={{ mb: 2 }}
         />
 
@@ -222,8 +290,20 @@ export default function updateKPI() {
           fullWidth
           required
           multiline
-          //   value={baseline}
-          //   onChange={(e) => setBaseline(e.target.value)}
+          name="progressReport"
+          onChange={handleInputChange}
+          value={actualPerformances.progressReport || ""}
+          sx={{ mb: 2 }}
+        />
+         <TextField
+          label="Brief Explaination"
+          variant="outlined"
+          fullWidth
+          required
+          multiline
+          name="briefExplanation"
+          onChange={handleInputChange}
+          value={actualPerformances.briefExplanation || ""}
           sx={{ mb: 2 }}
         />
 
@@ -235,7 +315,11 @@ export default function updateKPI() {
           required
           select
           sx={{ mb: 2 }}
+          name="progressRatingEnum"
+          onChange={handleInputChange}
+          value={actualPerformances.progressRatingEnum || ""}
         >
+
           {progressEnum.map((option) => (
             <MenuItem
               key={option}
