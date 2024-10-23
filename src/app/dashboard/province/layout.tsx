@@ -1,13 +1,12 @@
 // src/app/dashboard/layout.tsx
 'use client';
 
-import { useAuth } from '../context/AuthContext';
-import Sidebar from '../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import React, { ReactNode } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import ProtectedRoute from '../components/ProtectedRoute';
-
+import ProtectedRoute from '../../components/ProtectedRoute';
+import Sidebar from '../../components/Sidebar';
 
 interface LayoutProps {
   children: ReactNode;

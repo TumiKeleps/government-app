@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Box, Button, Typography, Card, CardContent, Grid, Paper, TextField, Modal, Pagination } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 // Define the data interface to match the API response
 interface Performance {
   quarterEnum: string;
@@ -58,6 +58,10 @@ export default function KPIDataTable() {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Data[]>([]); // State for holding fetched data
   const rowsPerPage = 2; // Number of cards per page
+    
+    const searchParams = useSearchParams();
+  const selectedSector = searchParams.get('sector'); // Get sector from query params
+  const selectedProvince = searchParams.get('province'); // Get sector from query params
   const router = useRouter();
 
   useEffect(() => {
@@ -71,8 +75,8 @@ export default function KPIDataTable() {
             'x-api-key': 'opt-key-dev-2024',  // Add the API key here
           },
           body: JSON.stringify({
-            sectorEnum: 'EDUCATION',
-            provinceEnum: 'EASTERN_CAPE',
+            sectorEnum: selectedSector,
+            provinceEnum: selectedProvince,
             page: page - 1, // API pagination is 0-based, so subtract 1
           }),
         });
