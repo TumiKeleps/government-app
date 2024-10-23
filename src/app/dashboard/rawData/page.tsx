@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import { Box, Button, Typography, Card, CardContent, Grid, Paper, TextField, Modal, Pagination } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
-
+import { useSearchParams, useRouter } from 'next/navigation';
 // Define the data interface to match the API response
 interface Performance {
   quarterEnum: string;
@@ -16,6 +15,7 @@ interface Performance {
 }
 
 interface Data {
+  id:number;
   indicator: string;
   creationDate: string;
   sector: string;
@@ -58,10 +58,11 @@ export default function KPIDataTable() {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Data[]>([]); // State for holding fetched data
   const rowsPerPage = 2; // Number of cards per page
- 
-  const searchParams = useSearchParams();
+    
+    const searchParams = useSearchParams();
   const selectedSector = searchParams.get('sector'); // Get sector from query params
   const selectedProvince = searchParams.get('province'); // Get sector from query params
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,6 +95,13 @@ export default function KPIDataTable() {
   const handleOpenModal = (row: Data) => {
     setSelectedRow(row);
     setOpen(true);
+  };
+
+  const handleUpdateClick = (id: number) => {
+   
+    console.log('Update Button Clicked for ID:', id);
+    router.push(`/updateKPI/${id}`);
+    // Proceed to update the row with the given ID
   };
 
   const handleCloseModal = () => {
@@ -218,7 +226,7 @@ export default function KPIDataTable() {
                     <Button variant="outlined" onClick={() => handleOpenModal(row)}>
                       View More Info
                     </Button>
-                    <Button variant="contained" color="primary">
+                    <Button variant="contained" color="primary" onClick={() => handleUpdateClick(row.id)}>
                       Update KPI
                     </Button>
                   </Grid>

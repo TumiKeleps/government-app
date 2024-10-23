@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: Readonly<LayoutProps>) {
   const { isAuthenticated } = useAuth();
   const [open] = React.useState(false);
 
-
+ 
 
   return (
     <ProtectedRoute>
