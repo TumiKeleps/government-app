@@ -64,10 +64,9 @@ export const SnackbarProvider = ({ children }: { children: ReactNode }) => {
       open={snackbarState.open}
       autoHideDuration={snackbarState.duration ?? 5000}
       onClose={handleClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       sx={{
         position: 'fixed',
-        bottom: 16,
         left: '50%',
         transform: 'translateX(-50%)',
         //zIndex: (theme) => theme.zIndex.snackbar,

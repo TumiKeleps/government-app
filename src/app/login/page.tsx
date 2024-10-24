@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import Image from "next/image";
 import "./style.css";
 import Logo from "../images/DPME-Logo-1024x349.jpg";
-import { Box, CircularProgress } from "@mui/material"; // Import the spinner
+import { Box, CircularProgress, TextField } from "@mui/material"; // Import the spinner
 import {
   MDBCard,
   MDBCardBody,
@@ -33,12 +33,10 @@ export default function Login() {
 
   const router = useRouter();
 
-
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Set loading to true when login starts
-  
+
     try {
       await login(username, password);
       showMessage("Login successful!", "success", 5000);
@@ -49,20 +47,24 @@ export default function Login() {
         "error",
         2000
       );
-    }finally{
-        setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box  style={{
+    <Box
+      style={{
         backgroundColor: "#283028", // Replace with your desired color
         minHeight: "100vh",
-      }}>
-      <MDBContainer >
-        <MDBRow fluid
-        className=" align-items-center justify-content-center"
-        style={{ minHeight: "90vh" }}>
+      }}
+    >
+      <MDBContainer>
+        <MDBRow
+          fluid
+          className=" align-items-center justify-content-center"
+          style={{ minHeight: "90vh" }}
+        >
           <MDBCol lg="4">
             <MDBCard className="shadow-5-strong" alignment="center">
               <div className="text-center my-4 mx-4">
@@ -71,40 +73,48 @@ export default function Login() {
               <MDBCardBody>
                 <MDBCardTitle>Sign In</MDBCardTitle>
                 <form onSubmit={handleSubmit}>
-                  <MDBInput
+                  <TextField
+                    fullWidth
                     className="mb-4"
                     type="email"
+                    size="small"
                     id="form2Example1"
                     label="Email address"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
                   />
-                  <MDBInput
-                    className="mb-4"
+                  <TextField
+                    fullWidth
+                    className="mb-4 "
+                    size="small"
                     type="password"
                     id="form2Example2"
                     label="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-
                     required
                   />
 
-                  <MDBRow className="mb-4">
+                  <MDBRow className="mb-4 ">
                     <MDBCol className="d-flex justify-content-center">
-                      <MDBCheckbox
+                      {/* <MDBCheckbox
                         id="form2Example3"
                         label="Remember me"
                         defaultChecked
-                      />
+                      /> */}
                     </MDBCol>
                   </MDBRow>
 
-                   {/* Show button or spinner depending on loading state */}
-                   <MDBBtn type="submit" className="mb-4 no-hover-fill" block disabled={loading}>
+                  {/* Show button or spinner depending on loading state */}
+                  <MDBBtn
+                    type="submit"
+                    className="mb-4 no-hover-fill"
+                    block
+                    disabled={loading}
+                  >
                     {loading ? (
-                      <CircularProgress size={30} color="inherit" />
+                      <CircularProgress size={24} color="inherit" />
                     ) : (
                       "Sign in"
                     )}
@@ -125,8 +135,6 @@ export default function Login() {
           </MDBCol>
         </MDBRow>
       </MDBContainer>
-      </Box>
-   
-   
+    </Box>
   );
 }
