@@ -153,7 +153,7 @@ const CreateKPI: React.FC = () => {
         />
 
         {/* Submit Button */}
-        <Button variant="contained" color="primary" type="submit">
+        <Button variant="outlined" color="primary" type="submit">
           Submit
         </Button>
       </form>

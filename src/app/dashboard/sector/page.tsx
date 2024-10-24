@@ -176,7 +176,7 @@ export default function DashboardPage() {
         'ECONOMIC_INFRASTRUCTURE',
         'ECONOMY',
         'EDUCATION',
-        'ENVIROMENT',
+        'ENVIRONMENT',
         'HEALTH',
         'HUMAN_SETTLEMENTS',
         'INTERNATIONAL_RELATIONS',
