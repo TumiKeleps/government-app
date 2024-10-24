@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Box, Button, Typography, Card, CardContent, Grid, Paper, TextField, Modal, Pagination } from '@mui/material';
+import { Box, Button, Typography, Card, CardContent, Grid, Paper, TextField, Modal, Pagination, Tooltip } from '@mui/material';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 // Define the data interface to match the API response
@@ -55,6 +55,7 @@ const toTitleCase = (str: string) => {
 export default function KPIDataTable() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedQuarter, setSelectedQuarter] = useState<Performance | null>(null); // State for selected quarter
+  const [selectedRow, setSelectedRow] = useState<Data | null>(null); // State for selected row (to get baseline, target, etc.)
   const [openQuarterModal, setOpenQuarterModal] = useState(false); // Modal for quarters
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Data[]>([]); // State for holding fetched data
@@ -107,12 +108,13 @@ export default function KPIDataTable() {
 
   const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  const handleQuarterClick = (quarter: Performance | undefined) => {
+  // Handle the quarter click by setting the selected quarter and row
+  const handleQuarterClick = (row: Data, quarter: Performance | undefined) => {
+    setSelectedRow(row); // Store the entire row data (includes indicator, baseline, target)
     if (quarter) {
       setSelectedQuarter(quarter);
     } else {
-      // If there's no data for the quarter, set selectedQuarter as null to show the "no data available" message
-      setSelectedQuarter(null);
+      setSelectedQuarter(null); // If there's no data for the quarter, show no data available
     }
     setOpenQuarterModal(true); // Open the modal for the selected quarter
   };
@@ -120,6 +122,7 @@ export default function KPIDataTable() {
   const handleCloseQuarterModal = () => {
     setOpenQuarterModal(false);
     setSelectedQuarter(null);
+    setSelectedRow(null);
   };
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -157,9 +160,6 @@ export default function KPIDataTable() {
             Q3: row.actualPerfomances.find(perf => perf.quarterEnum === 'Q3'),
             Q4: row.actualPerfomances.find(perf => perf.quarterEnum === 'Q4'),
           };
-
-          // Get the province from the first performance (assuming province is the same for all quarters)
-          const province = row.actualPerfomances.length > 0 ? row.actualPerfomances[0].province : 'Currently, there is no progress report available for this quarter.';
 
           return (
             <Card
@@ -211,26 +211,27 @@ export default function KPIDataTable() {
                       {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => {
                         const perf = quarterMap[quarter];
                         return (
-                          <Box
-                            key={quarter}
-                            onClick={() => handleQuarterClick(perf)} // Click event to open quarter modal
-                            sx={{
-                              flexGrow: 1,
-                              backgroundColor: perf ? getStatusColor(perf.progressRatingEnum) : '#d3d3d3',
-                              p: 2,
-                              borderRadius: 2,
-                              width: '22%',
-                              textAlign: 'center',
-                              whiteSpace: 'normal',
-                              cursor: 'pointer', // Indicate clickable
-                            }}
-                          >
-                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                              {quarter}
-                            </Typography>
-                            {/* Display progressReport */}
-                            <Typography variant="body2">{perf ? perf.progressReport : 'Currently, there is no progress report available for this quarter.'}</Typography>
-                          </Box>
+                          <Tooltip key={quarter} title="Click to view more info" arrow>
+                            <Box
+                              onClick={() => handleQuarterClick(row, perf)} // Click event to open quarter modal
+                              sx={{
+                                flexGrow: 1,
+                                backgroundColor: perf ? getStatusColor(perf.progressRatingEnum) : '#d3d3d3',
+                                p: 2,
+                                borderRadius: 2,
+                                width: '22%',
+                                textAlign: 'center',
+                                whiteSpace: 'normal',
+                                cursor: 'pointer', // Indicate clickable
+                              }}
+                            >
+                              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                {quarter}
+                              </Typography>
+                              {/* Display progressReport */}
+                              <Typography variant="body2">{perf ? perf.progressReport : 'Currently, there is no progress report available for this quarter.'}</Typography>
+                            </Box>
+                          </Tooltip>
                         );
                       })}
                     </Box>
@@ -273,18 +274,19 @@ export default function KPIDataTable() {
             p: 4,
           }}
         >
-          {selectedQuarter ? (
+          {selectedQuarter && selectedRow ? (
             <>
+              {/* Title: Indicator */}
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
-                {toTitleCase(selectedQuarter.quarterEnum)} Details
+                {toTitleCase(selectedQuarter.quarterEnum)} Details - {selectedRow.indicator || 'No Indicator'}
               </Typography>
 
-              {/* Grid layout with labels and data */}
+              {/* Grid layout for various details */}
               <Grid container spacing={2}>
-                {/* Progress */}
+                {/* Progress Report */}
                 <Grid item xs={6}>
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    Progress:
+                    Progress Report:
                   </Typography>
                   <Typography variant="body2">
                     {selectedQuarter.progressReport || 'No progress report available'}
@@ -320,6 +322,26 @@ export default function KPIDataTable() {
                     {selectedQuarter.briefExplanation || 'No explanation available'}
                   </Typography>
                 </Grid>
+
+                {/* Baseline - comes from the selectedRow */}
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Baseline:
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedRow.baseline || 'No baseline available'}
+                  </Typography>
+                </Grid>
+
+                {/* Target - comes from the selectedRow */}
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Target:
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedRow.target || 'No target available'}
+                  </Typography>
+                </Grid>
               </Grid>
             </>
           ) : (
@@ -334,7 +356,6 @@ export default function KPIDataTable() {
           </Button>
         </Box>
       </Modal>
-
     </Box>
   );
 }
