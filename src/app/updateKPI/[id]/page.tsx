@@ -4,7 +4,6 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { Box, Button, TextField, Typography, MenuItem } from "@mui/material";
 import { useSnackbar } from "../../context/SnackBar";
 import { useParams, useRouter } from "next/navigation";
-import { error } from "console";
 
 
 
@@ -217,6 +216,12 @@ export default function updateKPI() {
         </Typography>
         <Typography variant="body1">
           <strong>Province:</strong> {data?.province}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Baseline:</strong> {data?.baseline}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Target:</strong> {data?.target}
         </Typography>
       </Box>
     
