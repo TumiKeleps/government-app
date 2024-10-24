@@ -173,7 +173,7 @@ export default function DashboardPage() {
       setLoading(true);
       try{
       const sectors = [
-        'ECONOMIC_INFRACSTRUCTURE',
+        'ECONOMIC_INFRASTRUCTURE',
         'ECONOMY',
         'EDUCATION',
         'ENVIROMENT',
