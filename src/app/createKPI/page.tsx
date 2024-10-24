@@ -108,7 +108,7 @@ const CreateKPI: React.FC = () => {
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Create KPI
+        Create Performance Indicator 
       </Typography>
       <form onSubmit={handleSubmit}>
         {/* Sector Dropdown */}
