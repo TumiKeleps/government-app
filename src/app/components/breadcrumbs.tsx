@@ -74,7 +74,7 @@ const Breadcrumbs: React.FC = () => {
   return (
     <MUIBreadcrumbs
       aria-label="breadcrumb"
-      sx={{ color: 'white', marginLeft: 2 }}
+      sx={{ color: '#db8234', marginLeft: 2 }}
     >
       {breadcrumbs.map((crumb) => {
         // Build the href for the breadcrumb

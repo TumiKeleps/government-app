@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import * as React from "react";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
@@ -21,6 +21,7 @@ import Image from "next/image";
 import Logo from "../images/DPME-Logo-1024x349.jpg";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { CssVarsProvider } from "@mui/joy/styles";
+import { usePathname, useRouter } from "next/navigation";
 import {
   AppBar,
   Avatar,
@@ -32,11 +33,16 @@ import {
 import { Dashboard } from "@mui/icons-material";
 
 export default function Sidebar() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
 
   const { logout, user } = useAuth();
-
+  const router = useRouter(); // Initialize useRouter to get the current route
+  const pathname = usePathname();
   
+  const handleItemClick = (path:string) => {
+
+    router.push(path);
+  };
 
   return (
     <Box sx={{ display: "flex", position: "relative", height: "100vh" }}>
@@ -47,7 +53,7 @@ export default function Sidebar() {
         position="fixed"
         sx={{
           boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
-          backgroundColor: "#a4bdab",
+          backgroundColor: "#ffffff",
           zIndex: 1200,
         }}
       >
@@ -57,6 +63,7 @@ export default function Sidebar() {
               color="inherit"
               aria-label="open drawer"
               onClick={() => setOpen(true)}
+              
               edge="start"
               sx={{
                 minHeight: "60px",
@@ -87,7 +94,7 @@ export default function Sidebar() {
             </IconButton>
           )}
 
-          <Breadcrumbs/>
+          <Breadcrumbs />
           <Typography
             variant="h6"
             noWrap
@@ -96,9 +103,7 @@ export default function Sidebar() {
           ></Typography>
 
           <IconButton sx={{ ml: 2 }}>
-            <Avatar
-              alt={`${user?.name} ${user?.surname}`}
-            />
+            <Avatar alt={`${user?.name} ${user?.surname}`} />
           </IconButton>
           <Typography variant="body1" noWrap>
             {user?.name} {user?.surname}
@@ -145,17 +150,20 @@ export default function Sidebar() {
             <List sx={{ flexGrow: 1, overflowY: "auto", padding: 0 }}>
               <ListItem>
                 <ListItemButton
-                  component="a"
-                  href="/dashboard/sector"
+                  onClick={() => handleItemClick("/dashboard/sector")}
                   sx={{
                     justifyContent: open ? "flex-start" : "center",
                     alignItems: "center",
                     minHeight: 50,
-                    px: open ? 2 : 0, // Reduce padding when closed
+                    px: open ? 2 : 0,
+                     backgroundColor: pathname.startsWith("/dashboard/") || pathname.startsWith("/updateKPI/")? "#f0f0f0" : "transparent",
+                    "&:hover": {
+                      backgroundColor: "#faeae0  !important",
+                    },
                   }}
                 >
                   <ListItemDecorator>
-                    <Dashboard style= {{fontSize: "1.5rem"}}/>
+                    <Dashboard style={{ fontSize: "1.5rem" }} />
                   </ListItemDecorator>
                   {open && <ListItemContent>Dashboard</ListItemContent>}
                 </ListItemButton>
@@ -163,13 +171,17 @@ export default function Sidebar() {
 
               <ListItem>
                 <ListItemButton
-                  component="a"
-                  href="/createKPI"
+                  onClick={() => handleItemClick("/createKPI")}
                   sx={{
                     justifyContent: open ? "flex-start" : "center",
                     alignItems: "center",
                     minHeight: 50,
-                    px: open ? 2 : 0, // Reduce padding when closed
+                    px: open ? 2 : 0, 
+                    backgroundColor: pathname === "/createKPI" ? "#f0f0f0" : "transparent",
+                    "&:hover": {
+                      backgroundColor: "#faeae0  !important" , // Custom hover background color
+                    
+                    },
                   }}
                 >
                   <ListItemDecorator>
@@ -182,16 +194,23 @@ export default function Sidebar() {
 
             <Box sx={{ mt: "auto" }}>
               <Divider />
-              <List sx={{ padding: 0 }}> 
+              <List sx={{ padding: 0 }}>
                 <ListItem>
-                  <ListItemButton onClick={logout}
-                   sx={{
-                    justifyContent: open ? "flex-start" : "center",
-                    alignItems: "center",
-                    minHeight: 50,
-                    px: 2}}>
-                    <ListItemDecorator >
-                      <LogoutIcon   style= {{fontSize: "1.5rem"}}/>
+                  <ListItemButton
+                    onClick={logout}
+                    sx={{
+                      justifyContent: open ? "flex-start" : "center",
+                      alignItems: "center",
+                      minHeight: 50,
+                      px: 2,
+                      "&:hover": {
+                        backgroundColor: "#faeae0  !important", // Custom hover background color
+                  
+                      },
+                    }}
+                  >
+                    <ListItemDecorator>
+                      <LogoutIcon style={{ fontSize: "1.5rem" }} />
                     </ListItemDecorator>
                     {open && <ListItemContent>Logout</ListItemContent>}
                   </ListItemButton>
