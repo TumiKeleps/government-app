@@ -50,6 +50,14 @@ const ratingToPercentage: Record<string, number> = {
   NONE: 0,
 };
 
+const ratingToColor: Record<string, string> = {
+  RED: '#f8d7da',
+  AMBER: '#fff3cd',
+  BLUE: '#cfe2ff',
+  GREEN: '#d4edda',
+  NONE: '#d3d3d3',
+};
+
 // Helper function to format ENUM sector values into readable text
 const formatSectorName = (sectorEnum: string): string => {
   return sectorEnum
@@ -124,7 +132,6 @@ export default function DashboardPage() {
 
 
   const router = useRouter(); // Initialize router for client-side navigation
-  const orangeBackgroundColor = '#a4bdab'; 
 
   // Function to navigate to the province page
   const handleButtonClick = (sector: string) => {
@@ -259,6 +266,28 @@ export default function DashboardPage() {
   },
   []);
 
+    // Function to determine background color based on points
+    const getGraphBackgroundColor = (points: number[]) => {
+      const pointCounts = points.reduce<Record<number, number>>((acc, point) => {
+        acc[point] = (acc[point] || 0) + 1;
+        return acc;
+      }, {});
+  
+      const mostFrequentPoint = Object.keys(pointCounts).find(
+        (point) => pointCounts[+point] > 1
+      );
+  
+      if (mostFrequentPoint) {
+        const percentage = +mostFrequentPoint;
+        const rating = Object.keys(ratingToPercentage).find(
+          (key) => ratingToPercentage[key] === percentage
+        );
+        return ratingToColor[rating || 'NONE'];
+      }
+  
+      return '#f5f5f5'; // Dark white if all points are different
+    };
+    
    // Show loading spinner while data is being fetched
    if (loading) {
     return (
@@ -293,7 +322,7 @@ export default function DashboardPage() {
                     marginX: 'auto',
                     width: '95%',
                     boxShadow: 3,
-                    backgroundColor: orangeBackgroundColor,
+                    backgroundColor:  getGraphBackgroundColor(graphData[sector]),
                   }}
                 >
                   <CardContent sx={{ p: 1 }}>
@@ -429,7 +458,16 @@ export default function DashboardPage() {
               {row.progressReport}
             </TableCell>
             <TableCell sx={{ textAlign: 'center' }}>
-              {row.progressRating}
+              <Box
+                sx={{
+                  display: 'inline-block',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%', // Make it a circle
+                  backgroundColor: ratingToColor[row.progressRating], // Use the color based on progressRating
+                  marginRight: '8px', // Add some space
+                }}
+              />
             </TableCell>
             <TableCell sx={{ textAlign: 'center' }}>
               {row.briefExplanation}
