@@ -9,9 +9,7 @@ import {
   Typography,
   MenuItem,
 } from '@mui/material';
-
-// Import useSnackbar from your Snackbar context
-import { useSnackbar } from "../context/SnackBar";
+import { useRouter } from 'next/navigation'; // NEW: Import useRouter
 
 // Helper function to convert strings to title case and remove underscores
 const toTitleCase = (str: string) => {
@@ -29,12 +27,11 @@ const CreateKPI: React.FC = () => {
   const [baseline, setBaseline] = useState('');
   const [targetYear, setTargetYear] = useState('');
 
-  // Use the showMessage function from your Snackbar context
-  const { showMessage } = useSnackbar();
+  // UseRouter hook to navigate
+  const router = useRouter();
 
   // State for sectors
-  const [sectors, setSectors] =  useState<string[]>([]);
-
+  const [sectors, setSectors] = useState<string[]>([]);
 
   // Fetch sectors from backend when component mounts
   useEffect(() => {
@@ -85,23 +82,13 @@ const CreateKPI: React.FC = () => {
       });
 
       if (response.ok) {
-        // Use showMessage for success
-        showMessage('KPI created successfully!', 'success');
-
-        // Reset the form fields
-        setSector('');
-        setIndicator('');
-        setBaseline('');
-        setTargetYear('');
+        // Redirect to the success page if KPI creation is successful
+        router.push('/createKPI/success'); // NEW: Redirect to the success page
       } else {
-        // If the response is not ok, log an error
         console.error('Failed to create KPI');
-        showMessage('Failed to create KPI. Please try again.', 'error');
       }
     } catch (error) {
       console.error('Error creating KPI:', error);
-      // Use showMessage for errors
-      showMessage('Failed to create KPI. Please try again.', 'error');
     }
   };
 
