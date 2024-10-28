@@ -1,7 +1,14 @@
 "use client";
 
 import React, { FormEvent, useEffect, useState } from "react";
-import { Box, Button, TextField, Typography, MenuItem } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  MenuItem,
+  Grid,
+} from "@mui/material";
 import { useSnackbar } from "../../context/SnackBar";
 import { useParams, useRouter } from "next/navigation";
 
@@ -47,7 +54,9 @@ export default function updateKPI() {
   const [loading, setLoading] = useState<boolean>(true);
   const [progressEnum, setProgressEnum] = useState<string[]>([]);
   const [quarterEnum, setQuarterEnum] = useState<string[]>([]);
-  const [actualPerformances, setActualPerformance] = useState<Partial<ActualPerformance>>({
+  const [actualPerformances, setActualPerformance] = useState<
+    Partial<ActualPerformance>
+  >({
     captureId: "",
     progressRatingEnum: "",
     quarterEnum: "",
@@ -100,7 +109,9 @@ export default function updateKPI() {
         });
 
         if (!response.ok) {
-          throw new Error(`Error fetching progress enum: ${response.statusText}`);
+          throw new Error(
+            `Error fetching progress enum: ${response.statusText}`
+          );
         }
 
         const enumValues: string[] = await response.json();
@@ -124,7 +135,9 @@ export default function updateKPI() {
         });
 
         if (!response.ok) {
-          throw new Error(`Error fetching quarter enum: ${response.statusText}`);
+          throw new Error(
+            `Error fetching quarter enum: ${response.statusText}`
+          );
         }
 
         const enumValues: string[] = await response.json();
@@ -170,7 +183,9 @@ export default function updateKPI() {
       );
 
       if (!response.ok) {
-        throw new Error(`Error updating actual performance: ${response.statusText}`);
+        throw new Error(
+          `Error updating actual performance: ${response.statusText}`
+        );
       }
 
       showMessage("KPI Successfully updated!", "success", 5000);
@@ -184,6 +199,7 @@ export default function updateKPI() {
   return (
     <Box>
       {/* Centered Heading */}
+      <br />
       <Box
         sx={{
           display: "flex",
@@ -195,45 +211,58 @@ export default function updateKPI() {
         <Typography variant="h3">Update Performance Indicator</Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 4, maxWidth: '100%', p: 4 }}>
+      <Box sx={{ display: "flex", gap: 4, maxWidth: "100%", p: 4 }}>
         {/* Left section: Current Indicator */}
         <Box
           sx={{
-            flex: 1,
-            p: 3,
+            flex: "0 0 30%", // Set width to 30% of the container
+            p: 2,
             borderRadius: "12px",
             backgroundColor: "#f5f5f5",
             boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-            height: '100%', // Make it take the full available height
-            display: 'flex', // Flexbox to evenly distribute
-            flexDirection: 'column',
-            justifyContent: 'space-between', // Spread the content
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Current Indicator:
-          </Typography>
-          <Box sx={{ flexGrow: 1 }}> {/* Grow the content box */}
-            <Typography variant="body1">
-              <strong>Indicator:</strong> {data?.indicator}
+          <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
+            Current Indicator
+          </Typography><br/>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr",
+              rowGap: 4,
+              columnGap: 1,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Indicator:
             </Typography>
-            <Typography variant="body1">
-              <strong>Sector:</strong> {data?.sector}
+            <Typography variant="body1">{data?.indicator}</Typography>
+
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Sector:
             </Typography>
-            <Typography variant="body1">
-              <strong>Province:</strong> {data?.province}
+            <Typography variant="body1">{data?.sector}</Typography>
+
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Province:
             </Typography>
-            <Typography variant="body1">
-              <strong>Baseline:</strong> {data?.baseline}
+            <Typography variant="body1">{data?.province}</Typography>
+
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Baseline:
             </Typography>
-            <Typography variant="body1">
-              <strong>Target:</strong> {data?.target}
+            <Typography variant="body1">{data?.baseline}</Typography>
+
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Target:
             </Typography>
+            <Typography variant="body1">{data?.target}</Typography>
           </Box>
         </Box>
 
         {/* Right section: Form */}
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: "1", maxWidth: "65%" }}>
           <form onSubmit={handleSubmit}>
             <TextField
               label="Quarter"
@@ -302,7 +331,7 @@ export default function updateKPI() {
             />
 
             <TextField
-              label="Brief Explaination"
+              label="Brief Explanation"
               variant="outlined"
               fullWidth
               required
