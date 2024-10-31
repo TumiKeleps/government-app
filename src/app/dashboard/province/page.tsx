@@ -112,7 +112,7 @@ export default function ProvinceDashboard() {
   const router = useRouter(); // Initialize router for client-side navigation
   const searchParams = useSearchParams();
   const selectedSector = searchParams.get('sector') || 'Unknown'; // Get sector from query params
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
 
   // Function to navigate to the province page
@@ -158,37 +158,37 @@ export default function ProvinceDashboard() {
     if (selectedSector) {
       setLoading(true);
       const fetchAllProvincesData = async () => {
-        try{
-        const provinces = [
-          'EASTERN_CAPE',
-          'FREE_STATE',
-          'GAUTENG',
-          'KWAZULU_NATAL',
-          'LIMPOPO',
-          'MPUMALANGA',
-          'NORTHERN_CAPE',
-          'NORTH_WEST',
-          'WESTERN_CAPE',
-        ];
-        const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
-        const formattedData: Record<string, number[]> = {};
+        try {
+          const provinces = [
+            'EASTERN_CAPE',
+            'FREE_STATE',
+            'GAUTENG',
+            'KWAZULU_NATAL',
+            'LIMPOPO',
+            'MPUMALANGA',
+            'NORTHERN_CAPE',
+            'NORTH_WEST',
+            'WESTERN_CAPE',
+          ];
+          const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+          const formattedData: Record<string, number[]> = {};
 
-        for (const province of provinces) {
-          const quarterlyData: number[] = [];
-          for (const quarter of quarters) {
-            const percentage = await fetchProvinceData(province, quarter);
-            quarterlyData.push(percentage);
+          for (const province of provinces) {
+            const quarterlyData: number[] = [];
+            for (const quarter of quarters) {
+              const percentage = await fetchProvinceData(province, quarter);
+              quarterlyData.push(percentage);
+            }
+            formattedData[province] = quarterlyData;
           }
-          formattedData[province] = quarterlyData;
-        }
 
-        setProvinceData(formattedData);
-      }
-      catch (error) {
-        console.error('Error fetching graph data:', error);
-      } finally {
-        setLoading(false);
-      }
+          setProvinceData(formattedData);
+        }
+        catch (error) {
+          console.error('Error fetching graph data:', error);
+        } finally {
+          setLoading(false);
+        }
       };
 
       fetchAllProvincesData();
@@ -212,16 +212,16 @@ export default function ProvinceDashboard() {
             page: 0, // Set the page number to 0 (first page)
           }),
         });
-  
+
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
         }
-  
+
         const result = await response.json();
-  
+
         // Access the 'content' array from the response
         const content = result.content;
-  
+
         // Flatten the content array to create table data
         const flattenedData = content.map((performance: ActualPerformance) =>
           createData(
@@ -232,13 +232,13 @@ export default function ProvinceDashboard() {
             performance.creationDate // Creation date from the API response
           )
         );
-  
+
         // Sort the flattened data by creation date (most recent first)
         const sortedData = flattenedData.sort(
           (a: FlattenedData, b: FlattenedData) =>
             new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
         );
-  
+
         // Set the recent updates state with the 10 most recent entries
         setRecentUpdates(sortedData.slice(0, 10));
       } catch (error) {
@@ -248,7 +248,7 @@ export default function ProvinceDashboard() {
         setLoading(false);
       }
     }
-  
+
     if (selectedSector) {
       fetchRecentUpdates(); // Fetch updates only if a sector is selected
     }
@@ -265,8 +265,8 @@ export default function ProvinceDashboard() {
     return () => clearTimeout(timer); // Cleanup timeout
   }, [loading]);
 
-   // Function to determine background color based on points
-   const getGraphBackgroundColor = (points: number[]) => {
+  // Function to determine background color based on points
+  const getGraphBackgroundColor = (points: number[]) => {
     const pointCounts = points.reduce<Record<number, number>>((acc, point) => {
       acc[point] = (acc[point] || 0) + 1;
       return acc;
@@ -288,38 +288,38 @@ export default function ProvinceDashboard() {
   };
 
   if (error) {
-      return (
-        <Box sx={{
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '80vh',
-        }}>
-          <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
-          <Typography variant="h4" color="red" gutterBottom>
-            Server Error
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            We are unable to load the form at the moment. Please try again later.
-          </Typography>
-          <Button variant="outlined" color="primary" onClick={() => router.push('/dashboard/sector')}>
-            Go Back to Home
-          </Button>
-        </Box>
-      );
-    }
-  
+    return (
+      <Box sx={{
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '80vh',
+      }}>
+        <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
+        <Typography variant="h4" color="red" gutterBottom>
+          Oops!... Server Error
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          We are unable to load the form at the moment. Please try again later.
+        </Typography>
+        <Button variant="outlined" color="primary" onClick={() => router.push('/dashboard/sector')}>
+          Go Back to Home
+        </Button>
+      </Box>
+    );
+  }
+
   // Show loading spinner while data is being fetched
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <CircularProgress size={80}/>
+        <CircularProgress size={80} />
       </Box>
     );
   }
-  
+
   return (
     <div>
       {/* Graph Section */}
@@ -345,7 +345,7 @@ export default function ProvinceDashboard() {
                     marginX: 'auto',
                     width: '95%',
                     boxShadow: 3,
-                    backgroundColor:  getGraphBackgroundColor(provinceData[province])
+                    backgroundColor: getGraphBackgroundColor(provinceData[province])
                   }}
                 >
                   <CardContent sx={{ p: 1 }}>
@@ -395,7 +395,7 @@ export default function ProvinceDashboard() {
                   <Button
                     variant="outlined"
                     onClick={() => handleButtonClick(selectedSector || '', province)}
-                    sx={{mr: 2,}}>
+                    sx={{ mr: 2, }}>
                     More Information
                   </Button>
                 </Box>
@@ -407,95 +407,95 @@ export default function ProvinceDashboard() {
 
       {/* Recent Updates Table */}
       <Box
-  sx={{
-    flexGrow: 1,
-    padding: 3,
-    border: '1px solid',
-    borderColor: 'white',
-    backgroundColor: 'white',
-    borderRadius: '8px', // Rounded corners
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Soft shadow for card effect
-    overflow: 'hidden',
-  }}
->
-  <Typography
-    variant="h6"
-    gutterBottom
-    sx={{
-      fontSize: '1.25rem',
-      fontWeight: '600',
-      textAlign: 'left',
-      paddingX: '16px',
-      paddingY: '10px',
-      borderBottom: '1px solid',
-      borderColor: 'stroke',
-      backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    }}
-  >
-    Most Recent Updates
-  </Typography>
-  <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-    <Table sx={{ minWidth: 650 }} aria-label="recent updates table">
-      <TableHead>
-        <TableRow
+        sx={{
+          flexGrow: 1,
+          padding: 3,
+          border: '1px solid',
+          borderColor: 'white',
+          backgroundColor: 'white',
+          borderRadius: '8px', // Rounded corners
+          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Soft shadow for card effect
+          overflow: 'hidden',
+        }}
+      >
+        <Typography
+          variant="h6"
+          gutterBottom
           sx={{
-            backgroundColor: 'gray.100', // Light background for header
-            '& th': {
-              fontWeight: 'bold',
-              textAlign: 'center', // Center text in header
-            },
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            textAlign: 'left',
+            paddingX: '16px',
+            paddingY: '10px',
+            borderBottom: '1px solid',
+            borderColor: 'stroke',
+            backgroundColor: 'rgba(0, 0, 0, 0.03)',
           }}
         >
-          <TableCell>Province</TableCell>
-          <TableCell>Progress Report</TableCell>
-          <TableCell>Progress Rating</TableCell>
-          <TableCell>Brief Explanation</TableCell>
-          <TableCell>Creation Date</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {recentUpdates.map((row, index) => (
-          <TableRow
-            key={index}
-            sx={{
-              '&:nth-of-type(odd)': {
-                backgroundColor: 'rgba(0, 0, 0, 0.03)', // Alternating row color
-              },
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.1)', // Hover effect
-              },
-            }}
-          >
-            <TableCell sx={{ textAlign: 'center' }}>
-              {row.province}
-            </TableCell>
-            <TableCell sx={{ textAlign: 'center' }}>
-              {row.progressReport}
-            </TableCell>
-            <TableCell sx={{ textAlign: 'center' }}>
-            <Box
+          Most Recent Updates
+        </Typography>
+        <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 650 }} aria-label="recent updates table">
+            <TableHead>
+              <TableRow
                 sx={{
-                  display: 'inline-block',
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%', // Make it a circle
-                  backgroundColor: ratingToColor[row.progressRating], // Use the color based on progressRating
-                  marginRight: '8px', // Add some space
+                  backgroundColor: 'gray.100', // Light background for header
+                  '& th': {
+                    fontWeight: 'bold',
+                    textAlign: 'center', // Center text in header
+                  },
                 }}
-              />
-            </TableCell>
-            <TableCell sx={{ textAlign: 'center' }}>
-              {row.briefExplanation}
-            </TableCell>
-            <TableCell sx={{ textAlign: 'center' }}>
-              {new Date(row.creationDate).toLocaleString()}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
-</Box>
+              >
+                <TableCell>Province</TableCell>
+                <TableCell>Progress Report</TableCell>
+                <TableCell>Progress Rating</TableCell>
+                <TableCell>Brief Explanation</TableCell>
+                <TableCell>Creation Date</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {recentUpdates.map((row, index) => (
+                <TableRow
+                  key={index}
+                  sx={{
+                    '&:nth-of-type(odd)': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.03)', // Alternating row color
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)', // Hover effect
+                    },
+                  }}
+                >
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {row.province}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {row.progressReport}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    <Box
+                      sx={{
+                        display: 'inline-block',
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '50%', // Make it a circle
+                        backgroundColor: ratingToColor[row.progressRating], // Use the color based on progressRating
+                        marginRight: '8px', // Add some space
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {row.briefExplanation}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {new Date(row.creationDate).toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </div>
   );
 }

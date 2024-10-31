@@ -289,7 +289,7 @@ export default function DashboardPage() {
         }}>
           <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
           <Typography variant="h4" color="red" gutterBottom>
-            Server Error
+            Oops!... Server Error
           </Typography>
           <Typography variant="body1" sx={{ mb: 2 }}>
             We are unable to load the form at the moment. Please try again later.

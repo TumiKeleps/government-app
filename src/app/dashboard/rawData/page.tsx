@@ -283,7 +283,7 @@ export default function KPIDataTable() {
                         ) : (
                           <Box key={quarter} sx={{ flexGrow: 1, backgroundColor: '#d3d3d3', p: 2, borderRadius: 2, width: '22%', textAlign: 'center' }}>
                             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{quarter}</Typography>
-                            <Typography variant="body2">No report available.</Typography>
+                            <Typography variant="body2">Currently, there is no progress report available for this quarter.</Typography>
                           </Box>
                         );
                       })}
