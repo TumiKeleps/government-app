@@ -14,6 +14,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import ErrorIcon from '@mui/icons-material/Error'
 import { useRouter } from 'next/navigation';
 import {
   ResponsiveChartContainer,
@@ -124,12 +125,13 @@ function createData(
   return { sector, province, progressReport, progressRating, briefExplanation, creationDate };
 }
 
+
 export default function DashboardPage() {
 
   const [graphData, setGraphData] = useState<Record<string, number[]>>({});
   const [recentUpdates, setRecentUpdates] = useState<FlattenedData[]>([]); // Use FlattenedData[] for the state
   const [loading, setLoading] = useState(true); 
-
+  const [error, setError] = useState<boolean>(false);
 
   const router = useRouter(); // Initialize router for client-side navigation
 
@@ -140,7 +142,6 @@ export default function DashboardPage() {
 
   // Function to fetch progress rating for a given sector and quarter
   async function fetchProgressRating(sector: string, quarter: string) {
-    setLoading(true);
     try {
       const response = await fetch('http://192.168.8.6:8034/api/perfomance-indicators/most-frequent-progress-sector', {
         method: 'POST',
@@ -162,109 +163,96 @@ export default function DashboardPage() {
       console.error('Error fetching progress rating:', error);
       return 0; // Default to 0% if there's an error
     }
-    finally {
-      setLoading(false); // Set loading to false when the fetch is complete
-    }
   }
-
-  // Fetch data from the API for the graphs
+  // Consolidated data fetching
   useEffect(() => {
-    async function fetchGraphData() {
-      setLoading(true);
-      try{
-      const sectors = [
-        'ECONOMIC_INFRASTRUCTURE',
-        'ECONOMY',
-        'EDUCATION',
-        'ENVIROMENT',
-        'HEALTH',
-        'HUMAN_SETTLEMENTS',
-        'INTERNATIONAL_RELATIONS',
-        'PUBLIC_SERVICE',
-        'RURAL',
-        'SAFETY',
-        'SKILLS',
-        'SOCIAL_COHESION',
-        'SOCIAL_PROTECTION',
-      ]; // Add sectors as needed
-      const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
-      const formattedData: Record<string, number[]> = {};
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch graph data
+        const fetchGraphData = async () => {
+          const sectors = [
+            'ECONOMIC_INFRASTRUCTURE', 'ECONOMY', 'EDUCATION', 'ENVIROMENT',
+            'HEALTH', 'HUMAN_SETTLEMENTS', 'INTERNATIONAL_RELATIONS',
+            'PUBLIC_SERVICE', 'RURAL', 'SAFETY', 'SKILLS', 'SOCIAL_COHESION',
+            'SOCIAL_PROTECTION',
+          ];
+          const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+          const formattedData: Record<string, number[]> = {};
 
-      for (const sector of sectors) {
-        const quarterlyPoints: number[] = [];
-        for (const quarter of quarters) {
-          const percentage = await fetchProgressRating(sector, quarter);
-          quarterlyPoints.push(percentage);
-        }
-        formattedData[sector] = quarterlyPoints;
-      }
+          for (const sector of sectors) {
+            const quarterlyPoints = await Promise.all(
+              quarters.map((quarter) =>
+                fetchProgressRating(sector, quarter)
+              )
+            );
+            formattedData[sector] = quarterlyPoints;
+          }
+          return formattedData;
+        };
 
-      // Set the data for the graphs
-      setGraphData(formattedData);
-    }
-      catch (error) {
-        console.error('Error fetching graph data:', error);
+        // Fetch recent updates
+        const fetchRecentUpdates = async () => {
+          const response = await fetch('http://192.168.8.6:8034/api/perfomance-indicators', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': 'opt-key-dev-2024',
+            },
+          });
+
+          if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+          const result: SectorData[] = await response.json();
+          const flattenedData = result.flatMap((item) =>
+            item.actualPerfomances.map((performance) =>
+              createData(
+                toTitleCase(item.sector),
+                toTitleCase(item.province),
+                performance.progressReport,
+                performance.progressRatingEnum,
+                performance.briefExplanation,
+                performance.creationDate
+              )
+            )
+          );
+
+          return flattenedData.slice(0, 10);
+        };
+
+        // Run both fetches in parallel
+        const [fetchedGraphData, fetchedRecentUpdates] = await Promise.all([
+          fetchGraphData(),
+          fetchRecentUpdates(),
+        ]);
+
+        setGraphData(fetchedGraphData);
+        setRecentUpdates(fetchedRecentUpdates);
+        setError(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(true);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchGraphData();
+    fetchData();
+
+    
   }, []);
 
-  // Fetch data for the recent updates table
-  useEffect(() => {
-    setLoading(true);
-    async function fetchRecentUpdates() {
-      try {
-        const response = await fetch('http://192.168.8.6:8034/api/perfomance-indicators', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'x-api-key': 'opt-key-dev-2024',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        if (loading) {
+          setError(true);
+          setLoading(false);
         }
+      }, 10000); // 10 seconds timeout
 
-        const result: SectorData[] = await response.json();
-
-        // Flatten the data to extract actualPerformances and sort by creationDate
-        const flattenedData = result.flatMap((item: SectorData) =>
-          item.actualPerfomances.length > 0 // Check if there are actual performances
-            ? item.actualPerfomances.map((performance: ActualPerformance) =>
-                createData(
-                  toTitleCase(item.sector),
-                  toTitleCase(item.province),
-                  performance.progressReport,
-                  performance.progressRatingEnum,
-                  performance.briefExplanation,
-                  performance.creationDate
-                )
-              )
-            : []
-        );
-
-        // Sort data by creationDate and limit to the 10 most recent
-        const sortedData = flattenedData.sort(
-          (a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
-        );
-
-        setRecentUpdates(sortedData.slice(0, 10));
-      } catch (error) {
-        console.error('Error fetching recent updates:', error);
-      }
-        finally {
-        setLoading(false);
-      }
-    }
-
-    fetchRecentUpdates();
-  },
-  []);
+      return () => clearTimeout(timer); // Cleanup timeout
+    }, [loading]);
 
     // Function to determine background color based on points
     const getGraphBackgroundColor = (points: number[]) => {
@@ -288,6 +276,31 @@ export default function DashboardPage() {
       return '#f5f5f5'; // Dark white if all points are different
     };
     
+
+    if (error) {
+      return (
+        <Box sx={{
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '80vh',
+        }}>
+          <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
+          <Typography variant="h4" color="red" gutterBottom>
+            Server Error
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            We are unable to load the form at the moment. Please try again later.
+          </Typography>
+          <Button variant="outlined" color="primary" onClick={() => router.push('/dashboard/sector')}>
+            Go Back to Home
+          </Button>
+        </Box>
+      );
+    }
+
    // Show loading spinner while data is being fetched
    if (loading) {
     return (

@@ -55,7 +55,8 @@ export default function updateKPIClient({data}:Props) {
   const [progressEnum, setProgressEnum] = useState<string[]>([]);
   const [quarterEnum, setQuarterEnum] = useState<string[]>([]);
   const [actualPerformances, setActualPerformance] = useState<
-    Partial<ActualPerformance>
+    
+  Partial<ActualPerformance>
   >({
     captureId: "",
     progressRatingEnum: "",

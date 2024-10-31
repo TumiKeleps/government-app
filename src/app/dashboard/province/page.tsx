@@ -1,5 +1,4 @@
 "use client"; // Client-side rendering for the charts
-
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
@@ -17,6 +16,7 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
+import ErrorIcon from '@mui/icons-material/Error'
 import {
   ResponsiveChartContainer,
   LinePlot,
@@ -113,6 +113,7 @@ export default function ProvinceDashboard() {
   const searchParams = useSearchParams();
   const selectedSector = searchParams.get('sector') || 'Unknown'; // Get sector from query params
   const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<boolean>(false);
 
   // Function to navigate to the province page
   const handleButtonClick = (sector: string, province: string) => {
@@ -253,6 +254,17 @@ export default function ProvinceDashboard() {
     }
   }, [selectedSector]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (loading) {
+        setError(true);
+        setLoading(false);
+      }
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timer); // Cleanup timeout
+  }, [loading]);
+
    // Function to determine background color based on points
    const getGraphBackgroundColor = (points: number[]) => {
     const pointCounts = points.reduce<Record<number, number>>((acc, point) => {
@@ -274,6 +286,30 @@ export default function ProvinceDashboard() {
 
     return '#f5f5f5'; // Dark white if all points are different
   };
+
+  if (error) {
+      return (
+        <Box sx={{
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '80vh',
+        }}>
+          <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
+          <Typography variant="h4" color="red" gutterBottom>
+            Server Error
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            We are unable to load the form at the moment. Please try again later.
+          </Typography>
+          <Button variant="outlined" color="primary" onClick={() => router.push('/dashboard/sector')}>
+            Go Back to Home
+          </Button>
+        </Box>
+      );
+    }
   
   // Show loading spinner while data is being fetched
   if (loading) {
