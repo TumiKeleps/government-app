@@ -8,14 +8,15 @@ import {
   TextField,
   Typography,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
-import { useRouter } from 'next/navigation'; // NEW: Import useRouter
+import { useRouter } from 'next/navigation';
+import ErrorIcon from '@mui/icons-material/Error';
 
-// Helper function to convert strings to title case and remove underscores
 const toTitleCase = (str: string) => {
   return str
     .toLowerCase()
-    .replace(/_/g, ' ') // Replace underscores with spaces
+    .replace(/_/g, ' ')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
@@ -27,11 +28,11 @@ const CreateKPI: React.FC = () => {
   const [baseline, setBaseline] = useState('');
   const [targetYear, setTargetYear] = useState('');
 
-  // UseRouter hook to navigate
   const router = useRouter();
 
-  // State for sectors
   const [sectors, setSectors] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // Fetch sectors from backend when component mounts
   useEffect(() => {
@@ -41,7 +42,7 @@ const CreateKPI: React.FC = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': 'opt-key-dev-2024', // Add the API key here if needed
+            'x-api-key': 'opt-key-dev-2024',
           },
         });
 
@@ -50,57 +51,97 @@ const CreateKPI: React.FC = () => {
         }
 
         const enumValues = await response.json();
-        setSectors(enumValues); // Directly use the array of enum values
+        setSectors(enumValues);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching sectors enum:", error);
+        setError(true);
+        setLoading(false);
       }
     };
 
+    // Fetch sectors and set a 7-second timer for timeout
     fetchSectors();
-  }, []);
+    const timer = setTimeout(() => {
+      if (loading) { // Check if loading is still true after 7 seconds
+        setError(true);
+        setLoading(false);
+      }
+    }, 7000);
+
+    // Clear timer if the component unmounts or the request completes in time
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Prepare the data to be sent to the backend
     const kpiData = {
       baseline,
       indicator,
-      sector, // The original value is used
-      target: targetYear, // Adjust to match 'target' key in API
+      sector,
+      target: targetYear,
     };
 
     try {
-      // Send a POST request to the backend API
       const response = await fetch('http://192.168.8.6:8034/api/perfomance-indicators', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'opt-key-dev-2024', // Add the API key here
+          'x-api-key': 'opt-key-dev-2024',
         },
         body: JSON.stringify(kpiData),
       });
 
       if (response.ok) {
-        // Redirect to the success page if KPI creation is successful
-        router.push('/createKPI/success'); // NEW: Redirect to the success page
+        router.push('/createKPI/success');
       } else {
-        console.error('Failed to create KPI');
+        router.push('/createKPI/error');
       }
     } catch (error) {
       console.error('Error creating KPI:', error);
+      router.push('/createKPI/error');
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <CircularProgress size={80} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '80vh',
+      }}>
+        <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
+        <Typography variant="h4" color="red" gutterBottom>
+          Server Error
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          We are unable to load the form at the moment. Please try again later.
+        </Typography>
+        <Button variant="outlined" color="primary" onClick={() => router.push('/dashboard/sector')}>
+          Go Back to Home
+        </Button>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', padding: 3 }}>
-      <br/>
       <Typography variant="h4" gutterBottom>
-        Create Performance Indicator 
+        Create Performance Indicator
       </Typography>
-      <br/>
       <form onSubmit={handleSubmit}>
-        {/* Sector Dropdown */}
         <TextField
           label="Sector"
           variant="outlined"
@@ -118,7 +159,6 @@ const CreateKPI: React.FC = () => {
           ))}
         </TextField>
 
-        {/* Indicator Text Input */}
         <TextField
           label="Indicator"
           variant="outlined"
@@ -130,7 +170,6 @@ const CreateKPI: React.FC = () => {
           sx={{ mb: 2 }}
         />
 
-        {/* Baseline Text Input */}
         <TextField
           label="Baseline"
           variant="outlined"
@@ -142,7 +181,6 @@ const CreateKPI: React.FC = () => {
           sx={{ mb: 2 }}
         />
 
-        {/* Target for the Year Text Input */}
         <TextField
           label="Target for the Year"
           variant="outlined"
@@ -154,7 +192,6 @@ const CreateKPI: React.FC = () => {
           sx={{ mb: 2 }}
         />
 
-        {/* Submit Button */}
         <Button variant="outlined" color="primary" type="submit">
           Submit
         </Button>
