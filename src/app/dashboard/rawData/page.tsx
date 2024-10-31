@@ -71,6 +71,7 @@ export default function KPIDataTable() {
   const [openQuarterModal, setOpenQuarterModal] = useState(false);
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Data[]>([]);
+  const [totalPages, setTotalPages] = useState(1); 
   const [filteredRows, setFilteredRows] = useState<Data[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
@@ -109,6 +110,7 @@ export default function KPIDataTable() {
         const data = await response.json();
         setRows(data.content);
         setFilteredRows(data.content);
+        setTotalPages(data.totalPages);
         setLoading(false); // Stop loading on successful fetch
       } catch (error) {
         console.error('Error fetching KPI data:', error);
@@ -130,6 +132,10 @@ export default function KPIDataTable() {
     return () => clearTimeout(timer); // Clear the timer if the component unmounts
   }, [page, selectedSector, selectedProvince]);
 
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
   useEffect(() => {
     if (searchQuery) {
       const filtered = rows.filter((row) =>
@@ -141,7 +147,9 @@ export default function KPIDataTable() {
     }
   }, [searchQuery, rows]);
 
-  const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+  const paginatedRows = rows.filter((row) =>
+    row.indicator.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleQuarterClick = (row: Data, quarter: Performance | undefined) => {
     if (quarter && quarter.progressReport !== 'Currently, there is no progress report available for this quarter.') {
@@ -155,10 +163,6 @@ export default function KPIDataTable() {
     setOpenQuarterModal(false);
     setSelectedQuarter(null);
     setSelectedRow(null);
-  };
-
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
   };
 
   if (loading) {
@@ -302,7 +306,7 @@ export default function KPIDataTable() {
         })}
 
         <Pagination
-          count={Math.ceil(filteredRows.length / rowsPerPage)}
+          count={totalPages}
           page={page}
           onChange={handlePageChange}
           sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}
