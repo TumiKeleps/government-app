@@ -181,7 +181,7 @@ export default function KPIDataTable() {
       }}>
         <ErrorIcon sx={{ color: 'red', fontSize: 80 }} />
         <Typography variant="h4" color="error" gutterBottom>
-          Server Error
+          Oops!... Server Error
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
           Unable to load data. Please try again later.
@@ -277,7 +277,7 @@ export default function KPIDataTable() {
                               <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                                 {quarter}
                               </Typography>
-                              <Typography variant="body2">{perf ? perf.progressReport : 'No report available.'}</Typography>
+                              <Typography variant="body2">{perf ? perf.progressReport : 'Currently, there is no progress report available for this quarter.'}</Typography>
                             </Box>
                           </Tooltip>
                         ) : (
