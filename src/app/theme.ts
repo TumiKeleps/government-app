@@ -16,6 +16,11 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderColor: '#db8234',
+          backgroundColor: '#FFFFFF',
+          color: '#db8234',
+          boxShadow:"none",
+          borderWidth: '1px', // Ensure a visible border
+          borderStyle: 'solid', // Explicitly set to solid outline
           '&:hover': {
             backgroundColor: '#db8234',
             color: '#FFFFFF',
@@ -28,9 +33,13 @@ const theme = createTheme({
           style: {
             borderColor: '#db8234',
             color: '#db8234',
+            backgroundColor: '#FFFFFF', // Set the default background as white
+            borderWidth: '1px',
+            boxShadow:"none", // Ensure border width
+            borderStyle: 'solid', // Solid outline style
             '&:hover': {
-              backgroundColor: '#db8234',
-              color: '#FFFFFF',
+              backgroundColor: '#db8234', // On hover, fill with color
+              color: '#FFFFFF', // Text color on hover
             },
           },
         },

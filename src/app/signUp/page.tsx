@@ -18,7 +18,7 @@ import {
 } from "mdb-react-ui-kit";
 import Link from "next/link";
 import { useSnackbar } from "../context/SnackBar";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, TextField } from "@mui/material";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -106,7 +106,9 @@ export default function SignUp() {
               <MDBCardBody>
                 <MDBCardTitle className="mb-4">Sign Up</MDBCardTitle>
                 <form onSubmit={handleSubmit}>
-                  <MDBInput
+                  <TextField
+                  size="small"
+                  fullWidth
                     className="mb-4"
                     type="text"
                     id="form2Example1"
@@ -115,7 +117,9 @@ export default function SignUp() {
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                   />
-                  <MDBInput
+                  <TextField
+                  size="small"
+                  fullWidth
                     className="mb-4"
                     type="text"
                     id="form2Example1"
@@ -124,7 +128,9 @@ export default function SignUp() {
                     onChange={(e) => setLastName(e.target.value)}
                     required
                   />
-                  <MDBInput
+                  <TextField
+                  size="small"
+                  fullWidth
                     className="mb-4"
                     type="email"
                     id="form2Example1"
@@ -133,7 +139,9 @@ export default function SignUp() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <MDBInput
+                  <TextField
+                  size="small"
+                  fullWidth
                     className="mb-4"
                     type="password"
                     id="form2Example2"
