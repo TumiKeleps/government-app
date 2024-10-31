@@ -42,11 +42,18 @@ export default function Login() {
       showMessage("Login successful!", "success", 5000);
       router.push("/dashboard/sector");
     } catch (error) {
-      showMessage(
-        "Failed to login. Please check your credentials.",
-        "error",
-        2000
-      );
+      const err = error as Error & { status?: number };
+      const status = err.status;
+  
+      if (status === 403 || status === 404) {
+        showMessage("Failed to login. Please check your credentials.", "error", 2000);
+      } else if (status === 0 && err.message === "Request timed out") {
+        // Handle timeout error
+        router.push("/errorPage");
+      } else {
+        // For any other error, navigate to the backend down page
+        router.push("/errorPage");
+      }
     } finally {
       setLoading(false);
     }

@@ -49,6 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (username: string, password: string) => {
     try {
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 10000); // 10000 milliseconds = 10 seconds
+    
       // Build the URL with query parameters
       // Replace with your backend URL
 
@@ -60,10 +66,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
 
         body: JSON.stringify({ username, password }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(`Login failed  ${response.status}`);
+     // Create an Error object and attach the status code
+    const error: Error & { status?: number } = new Error(`Login failed`);
+    error.status = response.status;
+    throw error;
       }
 
       const data = await response.json();
@@ -82,8 +94,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
-      console.error("Login error:", error);
-      throw error; // Re-throw to handle in the component
+      if (error === "AbortError") {
+        // Handle fetch abort (timeout)
+        const timeoutError: Error & { status?: number } = new Error("Request timed out");
+        timeoutError.status = 0; // Use 0 or a custom code for timeout
+        throw timeoutError;
+      } else if (error instanceof TypeError && error.message === "Failed to fetch") {
+        // Handle network errors (e.g., backend is down)
+        const networkError: Error & { status?: number } = new Error("Network error occurred");
+        networkError.status = 0;
+        throw networkError;
+      } else {
+        console.error("Login error:", error);
+        throw error; // Re-throw to handle in the component
+      }
     }
   };
 

@@ -75,15 +75,11 @@ export default function SignUp() {
       } else {
         // Handle other errors
         const errorData = await response.json();
-        showMessage(
-          errorData.message || "Failed to sign up. Please try again.",
-          "error",
-          1000
-        );
+        router.push("/errorPage")
       }
     } catch (error) {
       console.error("Sign-up error:", error);
-      showMessage("Failed to sign up. Please try again.", "error", 5000);
+      router.push("/errorPage")
     } finally {
       setLoading(false);
     }

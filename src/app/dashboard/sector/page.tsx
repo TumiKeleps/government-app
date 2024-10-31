@@ -166,6 +166,7 @@ export default function DashboardPage() {
   }
   // Consolidated data fetching
   useEffect(() => {
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -233,6 +234,43 @@ export default function DashboardPage() {
       } catch (err) {
         console.error('Error fetching data:', err);
         setError(true);
+=======
+    async function fetchGraphData() {
+      setLoading(true);
+      try{
+      const sectors = [
+        'ECONOMIC_INFRASTRUCTURE',
+        'ECONOMY',
+        'EDUCATION',
+        'ENVIRONMENT',
+        'HEALTH',
+        'HUMAN_SETTLEMENTS',
+        'INTERNATIONAL_RELATIONS',
+        'PUBLIC_SERVICE',
+        'RURAL',
+        'SAFETY',
+        'SKILLS',
+        'SOCIAL_COHESION',
+        'SOCIAL_PROTECTION',
+      ]; // Add sectors as needed
+      const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+      const formattedData: Record<string, number[]> = {};
+
+      for (const sector of sectors) {
+        const quarterlyPoints: number[] = [];
+        for (const quarter of quarters) {
+          const percentage = await fetchProgressRating(sector, quarter);
+          quarterlyPoints.push(percentage);
+        }
+        formattedData[sector] = quarterlyPoints;
+      }
+
+      // Set the data for the graphs
+      setGraphData(formattedData);
+    }
+      catch (error) {
+        console.error('Error fetching graph data:', error);
+
       } finally {
         setLoading(false);
       }
